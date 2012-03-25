@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using SignalR.Hosting.AspNet.Routing;
 
 namespace SignalRDemo
 {
@@ -24,7 +25,7 @@ namespace SignalRDemo
             routes.MapRoute(
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
+                new { controller = "Demo", action = "Index", id = UrlParameter.Optional } // Parameter defaults
             );
 
         }
@@ -32,6 +33,7 @@ namespace SignalRDemo
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
+            RouteTable.Routes.MapConnection<MyConnection>("echo", "echo/{*operation}");
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
