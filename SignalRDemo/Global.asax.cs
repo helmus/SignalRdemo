@@ -27,13 +27,13 @@ namespace SignalRDemo
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Demo", action = "Index", id = UrlParameter.Optional } // Parameter defaults
             );
-
         }
 
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
             RouteTable.Routes.MapConnection<MyConnection>("echo", "echo/{*operation}");
+            RouteTable.Routes.MapConnection<MySlideSync>("slider", "slider/{*operation}");
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);

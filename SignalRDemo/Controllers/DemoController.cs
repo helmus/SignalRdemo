@@ -4,13 +4,19 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace SignalRDemo.Controllers
+using SignalR.Infrastructure;
+using SignalR.Hosting.AspNet;
+using SignalR;
+
+
+// ReSharper disable CheckNamespace
+public class DemoController : Controller
 {
-    public class DemoController : Controller
+    public void SendMessage( string message)
     {
-        public ActionResult Index()
-        {
-            return View();
-        }      
+        IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
+        IConnection connection = connectionManager.GetConnection<MyConnection>();
+
+        connection.Broadcast(message);
     }
 }
