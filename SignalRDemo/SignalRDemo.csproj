@@ -121,7 +121,8 @@
     <Content Include="Content\themes\base\jquery.ui.theme.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Scripts\app.js" />
+    <Content Include="Scripts\persistent.js" />
+    <Content Include="Scripts\hubDemo.js" />
     <Content Include="Scripts\libs\jquery-1.7.1-vsdoc.js" />
     <Content Include="Scripts\libs\jquery-1.7.1.js" />
     <Content Include="Scripts\libs\jquery-ui-1.8.18.js" />
@@ -142,7 +143,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Demo\Index.cshtml" />
+    <Content Include="Views\Demo\persistent.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Demo\HubChat.cshtml" />

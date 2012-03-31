@@ -12,6 +12,13 @@ using SignalR;
 // ReSharper disable CheckNamespace
 public class DemoController : Controller
 {
+
+    public ActionResult persistent()
+    {
+        return View();
+    }
+
+
     public void SendMessage( string message)
     {
         IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();

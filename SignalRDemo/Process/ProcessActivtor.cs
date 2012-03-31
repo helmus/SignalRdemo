@@ -1,7 +1,7 @@
 ﻿// ReSharper disable CheckNamespace
 
-[assembly: WebActivator.PreApplicationStartMethod(
-  typeof(DependencyManager), "Init")]
+[assembly: WebActivator.PostApplicationStartMethod(
+  typeof(ProcessActivtor), "Init")]
 
 public static class ProcessActivtor
 {

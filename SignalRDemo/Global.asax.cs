@@ -25,7 +25,7 @@ namespace SignalRDemo
             routes.MapRoute(
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
-                new { controller = "Demo", action = "Index", id = UrlParameter.Optional } // Parameter defaults
+                new { controller = "Demo", action = "persistent", id = UrlParameter.Optional } // Parameter defaults
             );
         }
 

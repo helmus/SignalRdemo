@@ -1,0 +1,41 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Index</title>
+
+    <script src="@Url.Content("~/Scripts/libs/jquery-1.7.1.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/libs/jquery.signalR.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/libs/jquery-ui-1.8.18.js")" type="text/javascript"></script>
+    <link  href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/persistent.js ")" type="text/javascript"></script>
+
+    <style type="text/css">
+        #slider
+        {
+            width: 500px;  
+        }
+    </style>
+
+</head>
+<body>
+    <div>
+        <input type="text" id="msg" />
+
+        <input type="button" id="broadcast" value="broadcast" />
+        <br />
+        <br />
+        <div id="slider"></div>
+
+        message count : <span id="messageCount">
+        </span>
+        <br/>
+        time diff : <span id="messages">
+        </span>
+    </div>
+</body>
+</html>
