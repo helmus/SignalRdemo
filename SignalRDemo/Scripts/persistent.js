@@ -1,6 +1,5 @@
 ﻿$(function () {
     var lastMessage, connection = $.connection('echo');
-
     connection.received(function (data) {
         var timeDif, receiveTime;
         receiveTime = new Date();
@@ -13,7 +12,6 @@
 
     lastMessage = new Date();
     connection.start();
-
     $("#broadcast").click(function () {
         connection.send($('#msg').val());
     });

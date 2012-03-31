@@ -18,12 +18,17 @@ public class DemoController : Controller
         return View();
     }
 
-
     public void SendMessage( string message)
     {
         IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
         IConnection connection = connectionManager.GetConnection<MyConnection>();
 
         connection.Broadcast(message);
+    }
+
+    public ActionResult dependency()
+    {
+        
+        return View();
     }
 }

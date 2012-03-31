@@ -1,14 +1,14 @@
 ﻿// ReSharper disable CheckNamespace
 
 using System;
+using System.Configuration;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
+using System.Security.Permissions;
 using System.Timers;
 using System.Web.Hosting;
 using SignalR;
 using SignalR.Hosting.AspNet;
 using SignalR.Infrastructure;
-using CommandType = System.Data.CommandType;
 
 class SqlDependencyManager : IRegisteredObject
 {
@@ -18,30 +18,99 @@ class SqlDependencyManager : IRegisteredObject
 
     public SqlDependencyManager()
     {
-        var myTimer = new System.Timers.Timer {Interval = 500};
-        myTimer.Elapsed += executeTimer;
-        myTimer.Start();
-        counter = 0;
-
-        return;
         // This will make the application pool aware of this object
         HostingEnvironment.RegisterObject(this);
-        _connectString = "Data Source=WILLEMPC;Initial Catalog=TestDB;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=False";
+        _connectString = ConfigurationManager.ConnectionStrings["testDB"].ConnectionString;
+
+        StartNotifyConnection();
+    }
+
+    private void StartNotifyConnection()
+    {
         _sqlConn = new SqlConnection(_connectString);
-        
-        SqlDependency.Start(_connectString);
-        
-        SqlCommand cmd = new SqlCommand("SELECT * FROM dbo.Movies", _sqlConn)
+
+        // check if hosting enviromnet can listen to exceptions
+        SqlClientPermission perm =new SqlClientPermission(PermissionState.Unrestricted);
+
+        try
         {
-            CommandType = CommandType.Text,
-            Notification = null
+            perm.Demand();
+        }
+        catch (Exception ex)
+        {
+            var secEx = new Exception("The hosting enviromnent does not have SqlClientPermission",ex);
+            broadCastException(secEx);
+            throw secEx;
+        }
+
+        try
+        {
+            _sqlConn.Open();
+            SqlDependency.Stop(_connectString);
+            SqlDependency.Start(_connectString);
+            StartNotifying();
+        }
+        catch (Exception ex)
+        {
+            broadCastException(ex);
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// This method will notify connected users of an exception that occured
+    /// </summary>
+    /// <param name="ex"></param>
+    private void broadCastException( Exception ex  )
+    {
+        IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
+        IConnection connection = connectionManager.GetConnection<MyConnection>();
+
+        connection.Broadcast(ex);
+    }
+
+    private void StartNotifying()
+    {
+        string query = "SELECT dbo.movies.Id, dbo.movies.name, dbo.movies.producerID, dbo.movies.releaseDate FROM dbo.movies";
+        SqlCommand cmd = new SqlCommand(query, _sqlConn)
+        {
+            CommandType = System.Data.CommandType.Text,
+            Connection = _sqlConn
         };
 
         SqlDependency dependency = new SqlDependency(cmd);
-        dependency.OnChange += OnChange;
+        dependency.OnChange +=  OnChange;
+
+        cmd.ExecuteNonQuery();
     }
 
-    static void executeTimer( object sender, ElapsedEventArgs elapsedEventArgs)
+    private void OnChange(object sender, SqlNotificationEventArgs e)
+    {
+        SqlDependency dependency = (SqlDependency)sender;
+
+        // Notices are only a one shot deal
+        // so remove the existing one so a new 
+        // one can be added
+        if (dependency != null) dependency.OnChange -= OnChange;
+        
+        IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
+        IConnection connection = connectionManager.GetConnection<MyConnection>();
+
+        connection.Broadcast("Update!");
+
+        try
+        {
+            StartNotifying();
+        }
+        catch (Exception ex)
+        {
+            broadCastException(ex);
+            throw;
+        }
+
+    }
+
+    static void executeTimer(object sender, ElapsedEventArgs elapsedEventArgs)
     {
         IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
         IConnection connection = connectionManager.GetConnection<MyConnection>();
@@ -50,25 +119,9 @@ class SqlDependencyManager : IRegisteredObject
         counter += 1;
     }
 
-    static void OnChange(object sender, SqlNotificationEventArgs e)
-    {
-        SqlDependency dependency = sender as SqlDependency;
-
-        // Notices are only a one shot deal
-        // so remove the existing one so a new 
-        // one can be added
-        if (dependency != null) dependency.OnChange -= OnChange;
-
-        IConnectionManager connectionManager = AspNetHost.DependencyResolver.Resolve<IConnectionManager>();
-        IConnection connection = connectionManager.GetConnection<MyConnection>();
-
-        connection.Broadcast("Update!");
-    }
-
-
     public void Stop(bool immediate)
     {
-        
-       // SqlDependency.Stop(_connectString);
+        SqlDependency.Stop(_connectString);
+        if (_sqlConn != null) _sqlConn.Close();
     }
 }
